@@ -25,6 +25,20 @@ fl = isfTab[isf];	// no boundary check
 fr = isfTab[6] - isfTab[isf];
 Global table definition file:
 https://github.com/Lefucjusz/Helix-MP3-Decoder/blob/master/src/libhelix/real/trigtabs.c
+
+fuller vulnerable code:
+```c
+isf = sfis->l[cb];          /* isf parsed from MP3 bitstream, fully attacker‑controlled */
+isfTab = (int *)ISFMpeg1[midSideFlag];
+
+if (isf == 7) {
+    fl = ISFIIP[midSideFlag][0];
+    fr = ISFIIP[midSideFlag][1];
+} else {
+    fl = isfTab[isf];	    /* no bounds check: out‑of‑bounds read if isf > 6 */
+    fr = isfTab[6] - isfTab[isf];
+}
+
 The isf index value is parsed directly from the MP3 frame bitstream without validation.
 A malicious MPEG1 intensity stereo MP3 frame can cause isf + i to exceed the size of xmp3_ISFMpeg1 (array size = 56), triggering global buffer out‑of‑bounds read.
 Reproduction steps
