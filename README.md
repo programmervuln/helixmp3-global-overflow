@@ -18,18 +18,11 @@ Upstream source link: https://github.com/Lefucjusz/Helix-MP3-Decoder/blob/master
 
 ```c
 // src/libhelix/real/stproc.c
-void xmp3_IntensityProcMPEG1(int gr, int ch, int nSamp, int *buf)
-{
-    int i;
-    int isf;
-    int *pIS;
-    // ...
-    pIS = &xmp3_ISFMpeg1[isf]; // No bounds check; `isf` is controlled by malicious MP3 bitstream
-    for(i=0;i<nSamp;i++)
-    {
-        buf[i] = (buf[i] * pIS[i]) >> 15; // Line 146: Out-of-bounds global memory READ
-    }
-}
+isf = sfis->l[cb];
+...
+isfTab = (int *)ISFMpeg1[midSideFlag];
+fl = isfTab[isf];	// no boundary check
+fr = isfTab[6] - isfTab[isf];
 Global table definition file:
 https://github.com/Lefucjusz/Helix-MP3-Decoder/blob/master/src/libhelix/real/trigtabs.c
 The isf index value is parsed directly from the MP3 frame bitstream without validation.
